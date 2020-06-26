@@ -34,8 +34,8 @@ print (PeakPerRespondent)
 
 
 
-sns.distplot(PeakPerRespondent['Amplitude'])
-plt.xlabel('Amplitude distribution Before mapping')
+sns.distplot(PeakPerRespondent['Amplitude'],hist=False, rug=True)
+plt.xlabel('Distribution of all values before mapping')
 
 
 #---------------------- Creating Data frame with OASIS data------------------------------
@@ -99,72 +99,7 @@ ax=Merged_Data.plot.bar(x='Stimulus',
 plt.show()
 plt.savefig('Comparison of iMotions and OASIS Before Map')
 
-#==================================================================================================
-#--------------------------------------Rescaling iMotions data to match OASIS data ----------------------------------
-#==================================================================================================
-
-DF_Mapping=PeakPerRespondent[PeakPerRespondent['Amplitude']!=0]
-
-DF_Mapping.loc[(DF_Mapping['Amplitude']>=0) & (DF_Mapping['Amplitude']<.1),'Amplitude']=1
-DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.1 ) & (DF_Mapping['Amplitude']<0.2),'Amplitude']=2
-DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.2) & (DF_Mapping['Amplitude']<0.3),'Amplitude']=3
-DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.3 ) & (DF_Mapping['Amplitude']<0.4),'Amplitude']=4
-DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.4 ) & (DF_Mapping['Amplitude']<0.5),'Amplitude']=5
-DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.5) & (DF_Mapping['Amplitude']<0.6),'Amplitude']=6
-DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.6 ) & (DF_Mapping['Amplitude']<0.8),'Amplitude']=7
-
-#------------------ After mapping: Plotting graph showing Amplitude distribution------------------------------------------
-
-
-sns.distplot(DF_Mapping['Amplitude'], hist=True, rug=True)
-plt.xlabel('Amplitude distribution after mapping')
-
-#--------------------After mapping: Calculating Amplitude mean and Std -------------------------------------------
-
-iMotionsAmplitudeMean=DF_Mapping.groupby('Stimulus')['Amplitude'].mean()
-print(iMotionsAmplitudeMean)
-iMotionsAmplitudeStd=DF_Mapping.groupby('Stimulus')['Amplitude'].std(ddof=0)
-print(iMotionsAmplitudeStd)
-#-----------------------Creating Datafarme with Amlitude mean and std----------------------------------------------
-
-Series1_Mapping={'iMotionsAmplitudeMean':iMotionsAmplitudeMean,'iMotionsAmplitudeStd':iMotionsAmplitudeStd}
-df_Mapping=pd.DataFrame(Series1_Mapping).reset_index()
-df_Mapping.columns=['Stimulus','iMotionsAmplitudeMean','iMotionsAmplitudeStd']
-print(df_Mapping)
-
-#-------------------------Plotting Graph to show Amplitude mean and Std Distribution  aefore mapping----------------------
-
-sns.distplot(df_Mapping['iMotionsAmplitudeMean'], hist=True, rug=True)
-sns.distplot(df_Mapping['iMotionsAmplitudeStd'],  hist=True, rug=True)
-plt.xlabel('Amplitude distribution after mapping')
-
-#----------------------Marging iMotions and OASIS-------------------------
-
-Marged_MappedData= pd.merge(df_Mapping,OasisDATA, how='inner', on=['Stimulus'])
-
-#----------------------------------Plotting error bar graph to show Amplitude mean and Std-------------------------
-iMotionsAmplitudeMean=(Marged_MappedData.iMotionsAmplitudeMean)
-iMotionsAmplitudeStd=(Marged_MappedData.iMotionsAmplitudeStd)
-materials= (Marged_MappedData['Stimulus'])
-x_pos = np.arange(len(materials))
-fig, ax = plt.subplots(figsize=(10,5))
-ax.bar(x_pos, iMotionsAmplitudeMean,yerr=iMotionsAmplitudeStd, align='center', alpha=0.30, ecolor='red', capsize=20)
-ax.set_ylabel('values')
-ax.set_xticks(x_pos)
-ax.set_xticklabels(materials, rotation=90)
-ax.set_title('error bar graph with Amplitude Mean and Std for each image')
-ax.yaxis.grid(True)
-
-#-----------------------------Comparing OASIS AND iMotions data after Mapping-------------------------------------
-fig, ax = plt.subplots()
-ax=Marged_MappedData.plot.bar(x='Stimulus',
-                 y=['OASIS_Arousal_mean','iMotionsAmplitudeMean'],
-                 yerr=Marged_MappedData[['OASIS_Arousal_std', 'iMotionsAmplitudeStd']].T.values,capsize=8,
-                 align='center', alpha=0.5, ecolor='black',figsize=(16,7))
-plt.show()
-plt.savefig('Comparison of iMotions and OASIS after Map')
-
-
+#
 # =============================================================================
 #----------------------------GSR SUMMARY SCORE-----------------------------------
 # =============================================================================
@@ -177,10 +112,10 @@ print(SummaryScoresNew)
 SummaryScoresNew= SummaryScoresNew.rename(columns={'StimulusName/Scene': 'Stimulus'})
 
 sns.distplot(SummaryScoresNew['PeakCount'], hist=False, rug=True)
-plt.xlabel('PeakCount distribution Before mapping')
+plt.xlabel('PeakCount distribution arcoss all data before mapping')
 
 sns.distplot(SummaryScoresNew['Peaks/Min'], hist=False, rug=True)
-plt.xlabel('Peaks/Min distribution Before mapping')
+plt.xlabel('Peaks/Min distribution before mapping')
 
 iMotions_PeakCountMean=SummaryScoresNew.groupby('Stimulus')['PeakCount'].mean()*10
 print(iMotions_PeakCountMean)
@@ -191,17 +126,12 @@ print(iMotions_PeakPerMinuteMean)
 iMotions_PeakPerMinuteStd=SummaryScoresNew.groupby('Stimulus')['Peaks/Min'].std()*10
 print(iMotions_PeakPerMinuteStd)
 
+
+#-------------------Creating Dataframe with Peakcount mean std and peaks/min mean and std series ---------------------
 Series2={'iMotions_PeakCountMean':iMotions_PeakCountMean, 'iMotions_PeakCountStd':iMotions_PeakCountStd,'iMotions_PeakPerMinuteMean':iMotions_PeakPerMinuteMean,'iMotions_PeakPerMinuteStd':iMotions_PeakPerMinuteStd}
 df2=pd.DataFrame(Series2).reset_index()
 df2.columns=['Stimulus','iMotions_PeakCountMean','iMotions_PeakCountStd','iMotions_PeakPerMinuteMean','iMotions_PeakPerMinuteStd']
 print(df2)
-
-
-#-------------------------Plotting Graph to show Amplitude mean and Std Distribution  before mapping----------------------
-
-#sns.distplot(df['BiMotionsAmplitudeMean'], hist=True, rug=True)
-#sns.distplot(df['BiMotionsAmplitudeStd'],  hist=True, rug=True)
-#plt.xlabel('Amplitude distribution Before mapping')
 
 
 #-------------------Merging OASIS AND iMotions Data ---------------------
@@ -210,7 +140,7 @@ print(df2)
 
 Merged_Data1= pd.merge(df2,OasisDATA, how='inner', on=['Stimulus'])
 
-#----------------------------------Plotting error bar graph to show PeakCount mean and Std-------------------------
+#----------------------------------Plotting error bar graph to show PeakCount mean and Std -------------------------
 iMotions_PeakCountMean=(Merged_Data1.iMotions_PeakCountMean)
 iMotions_PeakCountStd=(Merged_Data1.iMotions_PeakCountStd)
 materials= (Merged_Data1['Stimulus'])
@@ -220,9 +150,9 @@ ax.bar(x_pos, iMotions_PeakCountMean,yerr=iMotions_PeakCountStd, align='center',
 ax.set_ylabel('values')
 ax.set_xticks(x_pos)
 ax.set_xticklabels(materials, rotation=90)
-ax.set_title('error bar graph with PeakCountMean Mean and Std for each image')
+ax.set_title('error bar graph with PeakCount Mean and Std for each image')
 ax.yaxis.grid(True)
-
+#----------------------------------Plotting error bar graph to show Peaks/Min mean and Std -------------------------
 iMotions_PeakPerMinuteMean=(Merged_Data1.iMotions_PeakPerMinuteMean)
 iMotions_PeakPerMinuteStd=(Merged_Data1.iMotions_PeakPerMinuteStd)
 materials= (Merged_Data1['Stimulus'])
@@ -246,6 +176,94 @@ ax=Merged_Data1.plot.bar(x='Stimulus',
 ax.set_title('Comparing iMotions Peakcount and peaks/Min with OASIS Arousal')
 plt.show()
 plt.savefig('Comparison of iMotions and OASIS Before Map')
+
+
+iMotions= pd.merge(df,df2, how='inner', on=['Stimulus'])
+Bdataframe= pd.merge(iMotions,OasisDATA, how='inner', on=['Stimulus'])
+fig, ax = plt.subplots(figsize=(25,15))
+ax=Bdataframe.plot.bar(x='Stimulus',
+                 y=['OASIS_Arousal_mean','iMotions_AmplitudeMean','iMotions_PeakCountMean'],
+                 yerr=Bdataframe[['OASIS_Arousal_std','iMotions_AmplitudeStd','iMotions_PeakCountStd']].T.values,capsize=10,
+                 align='center', alpha=0.5, ecolor='black',figsize=(18,10))
+ax.set_title('Comparing iMotions scores with OASIS scores before Mapping')
+plt.show()
+
+#-----------------------------Distribution of values for the columnes used of iMitions-------------------------------------
+
+sns.distplot(Bdataframe['iMotions_AmplitudeMean'], hist=False, rug=True)
+sns.distplot(Bdataframe['iMotions_PeakCountMean'], hist=False, rug=True)
+sns.distplot(Bdataframe['iMotions_PeakPerMinuteMean'], hist=False, rug=True)
+
+plt.xlabel('Distribution of all data')
+
+
+
+#--------------------------------------Rescaling iMotions data to match OASIS data ----------------------------------
+#==================================================================================================
+#========================MAPPING Amplitude column with Oasis===============
+DF_Mapping=PeakPerRespondent[PeakPerRespondent['Amplitude']!=0]
+
+DF_Mapping.loc[(DF_Mapping['Amplitude']>=0) & (DF_Mapping['Amplitude']<.1),'Amplitude']=1
+DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.1 ) & (DF_Mapping['Amplitude']<0.2),'Amplitude']=2
+DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.2) & (DF_Mapping['Amplitude']<0.3),'Amplitude']=3
+DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.3 ) & (DF_Mapping['Amplitude']<0.4),'Amplitude']=4
+DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.4 ) & (DF_Mapping['Amplitude']<0.5),'Amplitude']=5
+DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.5) & (DF_Mapping['Amplitude']<0.6),'Amplitude']=6
+DF_Mapping.loc[(DF_Mapping['Amplitude']>=0.6 ) & (DF_Mapping['Amplitude']<0.8),'Amplitude']=7
+
+#------------------ After mapping: Plotting graph showing Amplitude distribution------------------------------------------
+
+
+sns.distplot(DF_Mapping['Amplitude'], hist=True, rug=True)
+plt.xlabel('Distribution of all values  after mapping')
+
+#--------------------After mapping: Calculating Amplitude mean and Std -------------------------------------------
+
+iMotionsAmplitudeMean=DF_Mapping.groupby('Stimulus')['Amplitude'].mean()
+print(iMotionsAmplitudeMean)
+iMotionsAmplitudeStd=DF_Mapping.groupby('Stimulus')['Amplitude'].std(ddof=0)
+print(iMotionsAmplitudeStd)
+#-----------------------Creating Datafarme with Amlitude mean and std----------------------------------------------
+
+Series1_Mapping={'iMotionsAmplitudeMean':iMotionsAmplitudeMean,'iMotionsAmplitudeStd':iMotionsAmplitudeStd}
+df_Mapping=pd.DataFrame(Series1_Mapping).reset_index()
+df_Mapping.columns=['Stimulus','iMotionsAmplitudeMean','iMotionsAmplitudeStd']
+print(df_Mapping)
+
+#-------------------------Plotting Graph to show Amplitude mean and Std Distribution  aefore mapping----------------------
+
+sns.distplot(df_Mapping['iMotionsAmplitudeMean'], hist=True, rug=True)
+sns.distplot(df_Mapping['iMotionsAmplitudeStd'],  hist=True, rug=True)
+plt.xlabel('Amplitude distribution after mapping')
+
+
+
+#----------------------Marging iMotions and OASIS-------------------------
+
+Marged_MappedData= pd.merge(df_Mapping,OasisDATA, how='inner', on=['Stimulus'])
+
+#----------------------------------Plotting error bar graph to show Amplitude mean and Std-------------------------
+iMotionsAmplitudeMean=(Marged_MappedData.iMotionsAmplitudeMean)
+iMotionsAmplitudeStd=(Marged_MappedData.iMotionsAmplitudeStd)
+materials= (Marged_MappedData['Stimulus'])
+x_pos = np.arange(len(materials))
+fig, ax = plt.subplots(figsize=(10,5))
+ax.bar(x_pos, iMotionsAmplitudeMean,yerr=iMotionsAmplitudeStd, align='center', alpha=0.30, ecolor='red', capsize=20)
+ax.set_ylabel('values')
+ax.set_xticks(x_pos)
+ax.set_xticklabels(materials, rotation=90)
+ax.set_title('error bar graph with Amplitude Mean and Std ')
+ax.yaxis.grid(True)
+
+#-----------------------------Comparing OASIS AND iMotions data after Mapping-------------------------------------
+fig, ax = plt.subplots()
+ax=Marged_MappedData.plot.bar(x='Stimulus',
+                 y=['OASIS_Arousal_mean','iMotionsAmplitudeMean'],
+                 yerr=Marged_MappedData[['OASIS_Arousal_std', 'iMotionsAmplitudeStd']].T.values,capsize=8,
+                 align='center', alpha=0.5, ecolor='black',figsize=(16,7))
+plt.show()
+plt.savefig('Comparison of iMotions and OASIS after Map')
+
 
 #========================MAPPING PeakCount and Peaks/mean colums with Oasis===============
 
@@ -295,6 +313,8 @@ df3=pd.DataFrame(Series3).reset_index()
 df3.columns=['Stimulus','iMotionsPeakCountMean','iMotionsPeakCountStd','iMotionsPeakPerMinuteMean','iMotionsPeakPerMinuteStd']
 print(df3)
 
+
+
 Marged_MappedData2= pd.merge(df3,OasisDATA, how='inner', on=['Stimulus'])
 
 #----------------------------------Plotting error bar graph to show Peak Count mean and Std------------------------------
@@ -310,29 +330,31 @@ ax.set_xticklabels(materials, rotation=90)
 ax.set_title('error bar graph with PeakCount Mean and Std for each image')
 ax.yaxis.grid(True)
 
-#-----------------------------Comparing OASIS AND iMotions data after Mapping-------------------------------------
+
+iMotionsPeakPerMinuteMean=(Marged_MappedData2.iMotionsPeakPerMinuteMean)
+iMotionsPeakPerMinuteStd=(Marged_MappedData2.iMotionsPeakPerMinuteStd)
+materials= (Marged_MappedData2['Stimulus'])
+x_pos = np.arange(len(materials))
+fig, ax = plt.subplots(figsize=(10,5))
+ax.bar(x_pos, iMotionsPeakPerMinuteMean,yerr=iMotionsPeakPerMinuteStd, align='center', alpha=0.30, ecolor='red', capsize=20)
+ax.set_ylabel('values')
+ax.set_xticks(x_pos)
+ax.set_xticklabels(materials, rotation=90)
+ax.set_title('error bar graph with Peaks/Min Mean and Std for each image')
+ax.yaxis.grid(True)
+
+
+
 fig, ax = plt.subplots()
 ax=Marged_MappedData2.plot.bar(x='Stimulus',
                  y=['OASIS_Arousal_mean','iMotionsPeakCountMean','iMotionsPeakPerMinuteMean'],
                  yerr=Marged_MappedData2[['OASIS_Arousal_std', 'iMotionsPeakCountMean','iMotionsPeakPerMinuteStd']].T.values,capsize=8,
                  align='center', alpha=0.5, ecolor='black',figsize=(16,7))
+ax.set_title('Error Graph represents OASIS and iMotions peakcount and peaks/min (mean and std)  next to each other ')
 plt.show()
 
 
-
-
-iMotions= pd.merge(df,df2, how='inner', on=['Stimulus'])
-Bdataframe= pd.merge(iMotions,OasisDATA, how='inner', on=['Stimulus'])
-fig, ax = plt.subplots(figsize=(25,15))
-ax=Bdataframe.plot.bar(x='Stimulus',
-                 y=['OASIS_Arousal_mean','iMotions_AmplitudeMean','iMotions_PeakCountMean'],
-                 yerr=Bdataframe[['OASIS_Arousal_std','iMotions_AmplitudeStd','iMotions_PeakCountStd']].T.values,capsize=10,
-                 align='center', alpha=0.5, ecolor='black',figsize=(18,10))
-ax.set_title('Comparing iMotions scores with OASIS scores before Mapping')
-plt.show()
-
-
-
+#-----------------------------Comparing OASIS AND  all iMotions data after Mapping-------------------------------------
 
 
 
@@ -340,28 +362,32 @@ iMotions_Mapping= pd.merge(df_Mapping,df3, how='inner', on=['Stimulus'])
 Adataframe= pd.merge(iMotions_Mapping,OasisDATA, how='inner', on=['Stimulus'])
 fig, ax = plt.subplots(figsize=(25,15))
 ax=Adataframe.plot.bar(x='Stimulus',
-                 y=['OASIS_Arousal_mean','iMotionsAmplitudeMean','iMotionsPeakCountMean'],
-                 yerr=Adataframe[['OASIS_Arousal_std','iMotionsAmplitudeStd','iMotionsPeakCountStd']].T.values,capsize=10,
+                 y=['OASIS_Arousal_mean','iMotionsAmplitudeMean','iMotionsPeakCountMean','iMotionsPeakPerMinuteMean'],
+                 yerr=Adataframe[['OASIS_Arousal_std','iMotionsAmplitudeStd','iMotionsPeakCountStd','iMotionsPeakPerMinuteStd']].T.values,capsize=10,
                  align='center', alpha=0.5, ecolor='black',figsize=(15,7))
-ax.set_title('Comparing iMotions scores with OASIS scores after Mapping')
+ax.set_title('Comparing OASIS scores iMotions scores with after Mapping')
 plt.show()
 
 
 
-
-fig, ax = plt.subplots()
-ax=Bdataframe.plot.bar(x='Stimulus',
-                 y=['OASIS_Arousal_mean','iMotions_AmplitudeMean','iMotions_PeakCountMean',],
-                 yerr=Bdataframe[['OASIS_Arousal_std','iMotions_AmplitudeStd','iMotions_PeakCountStd']].T.values,capsize=8,
-                 align='center', alpha=0.5, ecolor='black',figsize=(16,7))
-
-plt.show()
-
+#-----------------------------Distribution of values after mapping  for the columnes used in iMotions data analysis -------------------------------------
 
 sns.distplot(Adataframe['iMotionsAmplitudeMean'], hist=False, rug=True)
 sns.distplot(Adataframe['iMotionsPeakCountMean'], hist=False, rug=True)
 sns.distplot(Adataframe['iMotionsPeakPerMinuteMean'], hist=False, rug=True)
-plt.xlabel('Distribution of all data after maping')
+
+plt.xlabel('Distribution of iMotions data after mapping')
+
+
+#fig, ax = plt.subplots()
+#ax=Bdataframe.plot.bar(x='Stimulus',
+#                 y=['OASIS_Arousal_mean','iMotions_AmplitudeMean','iMotions_PeakCountMean',],
+#                 yerr=Bdataframe[['OASIS_Arousal_std','iMotions_AmplitudeStd','iMotions_PeakCountStd']].T.values,capsize=8,
+#                 align='center', alpha=0.5, ecolor='black',figsize=(16,7))
+#
+#plt.show()
+
+
 
 #-------------------------
 
