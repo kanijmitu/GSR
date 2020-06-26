@@ -1,22 +1,7 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jun 20 10:27:49 2020
 
-@author: MdAlmuch
-"""
 
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jun  9 18:45:39 2020
 
-@author: MdAlmuch
-"""
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 19 10:39:25 2020
 
-@author: MdAlmuch
-"""
 
 import matplotlib.pyplot as plt
 import pandas as pd
