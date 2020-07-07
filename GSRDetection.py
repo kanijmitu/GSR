@@ -1,8 +1,5 @@
 
 
-
-
-
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -84,7 +81,7 @@ ax=Merged_Data.plot.bar(x='Stimulus',
 plt.show()
 plt.savefig('Comparison of iMotions and OASIS Before Map')
 
-#
+
 # =============================================================================
 #----------------------------GSR SUMMARY SCORE-----------------------------------
 # =============================================================================
@@ -214,7 +211,6 @@ Series1_Mapping={'iMotionsAmplitudeMean':iMotionsAmplitudeMean,'iMotionsAmplitud
 df_Mapping=pd.DataFrame(Series1_Mapping).reset_index()
 df_Mapping.columns=['Stimulus','iMotionsAmplitudeMean','iMotionsAmplitudeStd']
 print(df_Mapping)
-
 #-------------------------Plotting Graph to show Amplitude mean and Std Distribution  aefore mapping----------------------
 
 sns.distplot(df_Mapping['iMotionsAmplitudeMean'], hist=True, rug=True)
@@ -264,7 +260,7 @@ DF_Mapping1.loc[(DF_Mapping1['PeakCount']>=8.58 ) & (DF_Mapping1['PeakCount']<11
 
 
 
-sns.distplot(SummaryScoresNew['Peaks/Min'], hist=True, rug=True)
+sns.distplot(SummaryScoresNew['Peaks/Min'], hist=False, rug=True)
 plt.xlabel('Peaks/Min distribution Before mapping')
 
 DF_Mapping1.loc[(DF_Mapping1['Peaks/Min']>=0.05 ) & (DF_Mapping1['Peaks/Min']<2.62),'Peaks/Min']=1
@@ -315,7 +311,7 @@ ax.set_xticklabels(materials, rotation=90)
 ax.set_title('error bar graph with PeakCount Mean and Std for each image')
 ax.yaxis.grid(True)
 
-
+#----------------------------------Plotting error bar graph to show Peaks/Min mean and Std------------------------------
 iMotionsPeakPerMinuteMean=(Marged_MappedData2.iMotionsPeakPerMinuteMean)
 iMotionsPeakPerMinuteStd=(Marged_MappedData2.iMotionsPeakPerMinuteStd)
 materials= (Marged_MappedData2['Stimulus'])
@@ -350,16 +346,25 @@ ax=Adataframe.plot.bar(x='Stimulus',
                  y=['OASIS_Arousal_mean','iMotionsAmplitudeMean','iMotionsPeakCountMean','iMotionsPeakPerMinuteMean'],
                  yerr=Adataframe[['OASIS_Arousal_std','iMotionsAmplitudeStd','iMotionsPeakCountStd','iMotionsPeakPerMinuteStd']].T.values,capsize=10,
                  align='center', alpha=0.5, ecolor='black',figsize=(15,7))
-ax.set_title('Comparing OASIS scores iMotions scores with after Mapping')
+ax.set_title('Comparing OASIS scores with iMotions scores after Mapping')
 plt.show()
 
+
+iMotions_Mapping= pd.merge(df_Mapping,df3, how='inner', on=['Stimulus'])
+Adataframe= pd.merge(iMotions_Mapping,OasisDATA, how='inner', on=['Stimulus'])
+fig, ax = plt.subplots(figsize=(25,15))
+ax=Adataframe.plot.bar(x='Stimulus',
+                 y=['OASIS_Arousal_mean','iMotionsAmplitudeMean','iMotionsPeakCountMean'],
+                 yerr=Adataframe[['OASIS_Arousal_std','iMotionsAmplitudeStd','iMotionsPeakCountStd']].T.values,capsize=10,
+                 align='center', alpha=0.5, ecolor='black',figsize=(15,7))
+ax.set_title('Comparing OASIS scores with iMotions scores after Mapping')
+plt.show()
 
 
 #-----------------------------Distribution of values after mapping  for the columnes used in iMotions data analysis -------------------------------------
 
-sns.distplot(Adataframe['iMotionsAmplitudeMean'], hist=False, rug=True)
-sns.distplot(Adataframe['iMotionsPeakCountMean'], hist=False, rug=True)
-sns.distplot(Adataframe['iMotionsPeakPerMinuteMean'], hist=False, rug=True)
+sns.distplot(Adataframe['iMotionsPeakCountMean'], hist=True, rug=True)
+sns.distplot(Adataframe['iMotionsPeakPerMinuteMean'], hist=True, rug=True)
 
 plt.xlabel('Distribution of iMotions data after mapping')
 
@@ -381,25 +386,58 @@ plt.xlabel('Distribution of iMotions data after mapping')
 #Marging data frame
 #Subtraction Before Mapping
 
-MeanScore=Bdataframe["OASIS_Arousal_mean"] - Bdataframe["iMotions_AmplitudeMean"]
-Bdataframe['MeanScore']=MeanScore
-
-StdScore=Bdataframe["OASIS_Arousal_std"] - Bdataframe["iMotions_AmplitudeStd"]
-Bdataframe['StdScore']=StdScore
-
-fig, ax = plt.subplots()
-ax=Bdataframe.plot.bar(x='Stimulus',
-                 y=['OASIS_Arousal_mean','iMotions_AmplitudeMean','MeanScore'],
-                 yerr=Bdataframe[['OASIS_Arousal_std','iMotions_AmplitudeStd','StdScore']].T.values,capsize=8,
-                 align='center', alpha=0.5, ecolor='black',figsize=(16,7))
-plt.show()
-
-
-
+#MeanScore=Bdataframe["OASIS_Arousal_mean"] - Bdataframe["iMotions_AmplitudeMean"]
+#Bdataframe['MeanScore']=MeanScore
+#
+#StdScore=Bdataframe["OASIS_Arousal_std"] - Bdataframe["iMotions_AmplitudeStd"]
+#Bdataframe['StdScore']=StdScore
+#
+#fig, ax = plt.subplots()
+#ax=Bdataframe.plot.bar(x='Stimulus',
+#                 y=['OASIS_Arousal_mean','iMotions_AmplitudeMean','MeanScore'],
+#                 yerr=Bdataframe[['OASIS_Arousal_std','iMotions_AmplitudeStd','StdScore']].T.values,capsize=8,
+#                 align='center', alpha=0.5, ecolor='black',figsize=(16,7))
+#plt.show()
+#PeakPerRespondent=pd.read_csv("Peaksprrespondent.csv")
 
 
+#-----------------------------Mapping iMotions data and OASIS data using for loop -------------------------------------
 
-    
+#oasis_max=7
+#imotions_max=0.8
+##imotions_max=PeakPerRespondent['Amplitude'].max()
+#for i in range(1, oasis_max):
+#        PeakPerRespondent.loc[(PeakPerRespondent['Amplitude']>=((i-1)*imotions_max/oasis_max)) & (PeakPerRespondent['Amplitude']<(i*imotions_max/oasis_max)),'Amplitude']=i
+#
+#
+#
+
+
+#import numpy as np
+#import matplotlib.pyplot as plt
+#
+#plt.style.use('ggplot')
+#
+#data = np.random.normal(size=10000)
+#
+## plt.hist gives you the entries, edges 
+## and drawables we do not need the drawables:
+#entries, edges, _ = plt.hist(data, bins=25, range=[-5, 5])
+#
+## calculate bin centers
+#bin_centers = 0.5 * (edges[:-1] + edges[1:])
+#
+## draw errobars, use the sqrt error. You can use what you want there
+## poissonian 1 sigma intervals would make more sense
+#plt.errorbar(bin_centers, entries, yerr=np.sqrt(entries), fmt='r.')
+#
+#plt.show()
+#
+#plt.plot(Bdataframe['iMotions_AmplitudeMean'], Bdataframe['Stimulus'], 'line type', label='label here')
+#plt.plot(Bdataframe['OASIS_Arousal_mean'], Bdataframe['Stimulus'], 'line type', label='label here')
+#plt.legend(loc='best')
+#plt.show()
+#
 
 
 
